@@ -65,17 +65,18 @@ OP_ACCOUNT_NAME="アカウント表示名" make run
 
 ## API リファレンス
 
-### `GetAPIKEY(account_name *C.char) *C.char`
+### `GetAPIKEY(account_name *C.char, secret_ref_uri *C.char) *C.char`
 
 1Password Desktop App Integration 経由でシークレットを取得します。
 
 | 項目 | 説明 |
 |------|------|
-| 引数 | `account_name` — 1Password アカウントの表示名 |
+| 第1引数 | `account_name` — 1Password アカウントの表示名 |
+| 第2引数 | `secret_ref_uri` — シークレット参照 URI（例: `op://API_KEY/Example/credential`）; 形式: `op://<vault名>/<アイテム名>/<フィールド名>` |
 | 戻り値 | C.malloc で確保されたシークレット文字列のポインタ |
-| エラー時 | パニック（クライアント初期化失敗 / シークレット解決失敗） |
+| エラー時 | クライアント初期化失敗またはシークレット解決失敗の場合、空文字列（`""`）を返す |
 
-> **注意**: 使用後は必ず `FreeString()` で解放してください。
+> **注意**: 使用後は必ず `FreeString()` で解放してください。戻り値が空文字列の場合はエラーが発生しています。
 
 ### `FreeString(s *C.char)`
 

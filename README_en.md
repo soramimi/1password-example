@@ -65,17 +65,18 @@ The retrieved secret will be printed to standard output.
 
 ## API Reference
 
-### `GetAPIKEY(account_name *C.char) *C.char`
+### `GetAPIKEY(account_name *C.char, secret_ref_uri *C.char) *C.char`
 
 Retrieves a secret from 1Password via Desktop App Integration.
 
 | | Description |
 |---|---|
-| Argument | `account_name` — display name of the 1Password account |
+| Argument 1 | `account_name` — display name of the 1Password account |
+| Argument 2 | `secret_ref_uri` — secret reference URI (e.g. `op://API_KEY/Example/credential`); format: `op://<vault>/<item>/<field>` |
 | Return value | Pointer to a secret string allocated with `C.malloc` |
-| On error | Panics on client initialization failure or secret resolution failure |
+| On error | Returns an empty string (`""`) on client initialization failure or secret resolution failure |
 
-> **Note**: Always call `FreeString()` to release the returned pointer after use.
+> **Note**: Always call `FreeString()` to release the returned pointer after use. Check for an empty return value to detect errors.
 
 ### `FreeString(s *C.char)`
 

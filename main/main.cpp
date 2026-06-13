@@ -29,9 +29,21 @@ int main(int argc, char **argv)
 		exit(1);
 	}
 
+	// 取得するシークレットの参照 URI を指定する
+	// URI の形式: op://<vault名>/<アイテム名>/<フィールド名>
+	const char *secret_ref_uri = "op://API_KEY/Example/credential";
+
 	// libapikey.so 経由で 1Password SDK を呼び出し、シークレットを取得する
-	// 戻り値はGoのランタイムが確保したヒープ上の文字列ポインタ
-	char *s = GetAPIKEY(account_name);
+	// 第1引数: アカウント名、第2引数: シークレット参照 URI
+	// 戻り値はGoのランタイムが確保したヒープ上の文字列ポインタ（エラー時は空文字列）
+	char *s = GetAPIKEY(account_name, const_cast<char *>(secret_ref_uri));
+
+	// エラー時は空文字列が返るため、取得できなかった場合はエラーを出力して終了する
+	if (s[0] == '\0') {
+		fprintf(stderr, "Failed to retrieve secret from 1Password\n");
+		FreeString(s);
+		exit(1);
+	}
 
 	// 取得したシークレットを標準出力に表示する
 	puts(s);

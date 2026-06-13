@@ -21,8 +21,9 @@ extern const char *_GoStringPtr(_GoString_ s);
 /* Start of preamble from import "C" comments.  */
 
 
-#line 3 "main.go"
+#line 11 "main.go"
 
+// C の free() を使用するために stdlib.h をインクルードする
 #include <stdlib.h>
 
 #line 1 "cgo-generated-wrapper"
@@ -87,7 +88,7 @@ typedef struct { void *data; GoInt len; GoInt cap; } GoSlice;
 extern "C" {
 #endif
 
-extern char* GetAPIKEY(char* account_name);
+extern char* GetAPIKEY(char* account_name, char* secret_ref_uri);
 extern void FreeString(char* s);
 
 #ifdef __cplusplus

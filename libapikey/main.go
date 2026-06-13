@@ -27,22 +27,22 @@ import (
 //
 // 引数:
 //
-//	account_name - 1Password のアカウント表示名（例: "John Doe"）
+//	account_name   - 1Password のアカウント表示名（例: "John Doe"）
+//	secret_ref_uri - シークレット参照 URI（例: "op://API_KEY/Example/credential"）
+//	                 URI の形式: op://<vault名>/<アイテム名>/<フィールド名>
 //
 // 戻り値:
 //
 //	C.malloc で確保されたシークレット文字列のポインタ。
+//	エラー時は空文字列（""）のポインタを返す。
 //	呼び出し側は使用後に必ず FreeString() で解放すること。
 //
-// パニック:
-//
-//	1Password クライアントの初期化失敗、またはシークレットの解決失敗時にパニックする。
-//
 //export GetAPIKEY
-func GetAPIKEY(account_name *C.char) *C.char {
+func GetAPIKEY(account_name *C.char, secret_ref_uri *C.char) *C.char {
 
 	// C文字列をGoの文字列型に変換する
 	accname := C.GoString(account_name)
+	uri := C.GoString(secret_ref_uri)
 
 	// 1Password クライアントを初期化する
 	// WithDesktopAppIntegration: ローカルで起動している 1Password デスクトップアプリと連携する
@@ -52,14 +52,15 @@ func GetAPIKEY(account_name *C.char) *C.char {
 		onepassword.WithIntegrationInfo("My 1Password Integration", "v1.0.0"),
 	)
 	if err != nil {
-		panic(err)
+		// クライアントの初期化に失敗した場合は空文字列を返す
+		return C.CString("")
 	}
 
 	// シークレット参照 URI を使って 1Password Vault からシークレットを取得する
-	// URI の形式: op://<vault名>/<アイテム名>/<フィールド名>
-	secret, err := client.Secrets().Resolve(context.Background(), "op://API_KEY/Example/credential")
+	secret, err := client.Secrets().Resolve(context.Background(), uri)
 	if err != nil {
-		panic(err)
+		// シークレットの解決に失敗した場合は空文字列を返す
+		return C.CString("")
 	}
 
 	// GoのStringをC.mallocで確保したメモリにコピーして返す
